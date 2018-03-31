@@ -1,5 +1,5 @@
-let userBase = new Array();
-let taskBase = new Array();
+let userBase = [];
+let taskBase = [];
 
 let User = function(name, surname) {
 	this.name = name;
@@ -8,7 +8,6 @@ let User = function(name, surname) {
 	this.tasks = [];
 };
 
-//дата неправильно конвертируется в таймстамп!!! переделать!!!
 let Task = function(from, title, description, deadline, responsible) {
 	this.from = from;
 
@@ -81,20 +80,20 @@ let setResponsible = (title, responsible) => {
 		console.log('Something is wrong. Check if the user or task really exists.')
 	} else {
 		let task = searchForTask(title);
-		let userTemp = task['responsible'];
+		let userTemp = task.responsible;
 		for(user of userBase) {
-			if(user['name'] == task['responsible']) {
-				for(tsk in user['tasks']) {
-					if(user['tasks'][tsk] == task) {
-						user['tasks'].splice(tsk, 1);
+			if(user.name == task.responsible) {
+				for(tsk in user.tasks) {
+					if(user.tasks[tsk] == task) {
+						user.tasks.splice(tsk, 1);
 					}
 				}
-				task['responsible'] = responsible;
+				task.responsible = responsible;
 			} 
 		}
 		for(user1 of userBase) {
-			if(user1['name'] == task['responsible']) {
-				user1['tasks'].push(task);
+			if(user1.name == task.responsible) {
+				user1.tasks.push(task);
 		}
 	    }
 	    console.log(`Responsibility for the task: ${title} changed from ${userTemp} to ${task['responsible']}`);
@@ -107,7 +106,7 @@ let setDeadline = (title, newDeadline) => {
 			let tempDeadline = task['deadline'];
 			let splat = newDeadline.split('-').reverse().join('-');
 			let newDeadl = Date.parse(splat);
-			task['deadline'] = newDeadl;
+			task.deadline = newDeadl;
 
 			let dateFirst = new Date(tempDeadline).toISOString().substring(0, 10).split('-').reverse().join('-');
 			let dateSecond = new Date(newDeadl).toISOString().substring(0, 10).split('-').reverse().join('-');
@@ -126,13 +125,13 @@ let setStatus = (title, status) => {
 
 			switch(status) {
 				case 'Wait':
-				    task['status'] = 'Wait';
+				    task.status = 'Wait';
 				    break;
 				case 'In Progress':
-				    task['status'] = 'In Progress';
+				    task.status = 'In Progress';
 				    break;
 				case 'Done':
-				    task['status'] = 'Done';
+				    task.status = 'Done';
 				    break;
 				default:
 				    console.log('Wrong status. Appropriate ones are: Wait / In Progress / Done .');
@@ -193,7 +192,7 @@ setDeadline('homework', '25-05-2018');
 setStatus('homework', 'In Progress');
 
 showUsers();
-showTasks('Wait');
+showTasks('In Progress');
 
 
 
