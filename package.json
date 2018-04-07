@@ -1,0 +1,24 @@
+{
+  "name": "todo",
+  "version": "0.0.1",
+  "description": "'A simple app that let you manage tasks in the workgroup'",
+  "main": "TODO.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vikt0rKr/TaskApp.git"
+  },
+  "keywords": [
+    "task",
+    "app",
+    "tasklist"
+  ],
+  "author": "Victor Krivonos",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Vikt0rKr/TaskApp/issues"
+  },
+  "homepage": "https://github.com/Vikt0rKr/TaskApp#readme"
+}
