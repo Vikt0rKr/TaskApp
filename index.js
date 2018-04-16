@@ -1,21 +1,23 @@
 const {
-  Task, taskBase, searchTask, addTask, setDeadline, setStatus, showTasks, setResponsible,
+  searchTask, addTask, setDeadline, setStatus, showTasks, setResponsible,
 } = require('./src/task');
 
 const {
-  user, userBase, findUser, addUser, showUsers,
+  findUser, addUser, showUsers,
 } = require('./src/user');
 
-addUser('Vasya', 'Pupkin');
-addUser('Masha', 'Krasnaya');
-addUser('Petr', 'Ivanenko');
-addUser('Ivan', 'Grozniy');
+(async () => {
+  await addUser('Vasya', 'Pupkin');
+  await addUser('Masha', 'Krasnaya');
+  await addUser('Petr', 'Ivanenko');
+  await addUser('Ivan', 'Grozniy');
 
-addTask('Masha', 'homework', 'do the homework for his little brother', '24-05-2018', 'Ivan');
+  await addTask('Masha', 'homework', 'do the homework for his little brother', '24-05-2018', 'Ivan');
 
-setResponsible('homework', 'Vasya');
-setDeadline('homework', '25-05-2018');
-setStatus('homework', 'In Progress');
+  await setResponsible('homework', 'Vasya');
+  await setDeadline('homework', '25-05-2018');
+  await setStatus('homework', 'In Progress');
 
-showUsers();
-showTasks('In Progress');
+  await showUsers();
+  await showTasks('In Progress');
+})();

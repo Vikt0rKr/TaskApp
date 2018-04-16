@@ -1,35 +1,35 @@
-const taskBase = require('./taskBase.js');
+const init = require('../init.js');
+const searchTask = require('./searchTask.js');
+const convertFromBSON = require('../convertFromBSON.js');
 
-const setStatus = (title, status) => {
-  taskBase.forEach((task) => {
-    const statusForAssign = task;
-    if (task.title === title) {
-      const tempStatus = task.status;
-      let wrongStatus = false;
-      switch (status) {
-        case 'Wait':
-          statusForAssign.status = 'Wait';
-          break;
-        case 'In Progress':
-          statusForAssign.status = 'In Progress';
-          break;
-        case 'Done':
-          statusForAssign.status = 'Done';
-          break;
-        default:
-          console.log('Wrong status. Appropriate ones are: Wait / In Progress / Done .');
-          wrongStatus = true;
-          break;
-      }
-      if (wrongStatus) {
-        console.log(`Failed to change status due to incorrect form. Status of ${title} is: ${tempStatus}`);
-      } else {
-        console.log(`Status of task: ${title} changed from ${tempStatus} to ${statusForAssign.status}`);
-      }
-    } else {
-      console.log('There is no such task in the app.');
+const setStatus = async (titleTask, statusTask) => {
+  const setTaskStatusInDb = async (DB) => {
+    const previousStatus = await DB.collection('tasks').find({ title: titleTask }).toArray();
+    const previousStatusHumanFormat = await convertFromBSON(previousStatus);
+    const preStatus = previousStatusHumanFormat[0].status;
+    switch (statusTask) {
+      case 'Wait':
+        await DB.collection('tasks').update({ title: titleTask }, { $set: { status: 'Wait' } });
+        console.log(`Changed status of the task: ${titleTask} from ${preStatus} to ${statusTask}`);
+        break;
+      case 'In Progress':
+        await DB.collection('tasks').update({ title: titleTask }, { $set: { status: 'In Progress' } });
+        console.log(`Changed status of the task: ${titleTask} from ${preStatus} to ${statusTask}`);
+        break;
+      case 'Done':
+        await DB.collection('tasks').update({ title: titleTask }, { $set: { status: 'Done' } });
+        console.log(`Changed status of the task: ${titleTask} from ${preStatus} to ${statusTask}`);
+        break;
+      default:
+        console.log('Wrong status! Use these forms, please: Wait / In Progress / Done');
     }
-  });
+  };
+  const foundTask = await searchTask(titleTask);
+  if (foundTask === null) {
+    console.log(`Have not found task named ${titleTask}`);
+  } else {
+    await init(setTaskStatusInDb);
+  }
 };
 
 module.exports = setStatus;

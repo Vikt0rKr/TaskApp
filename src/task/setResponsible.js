@@ -1,29 +1,24 @@
-const userBase = require('../user/userBase.js');
 const findUser = require('../user/findUser.js');
-const searchForTask = require('../task/searchTask.js');
+const searchTask = require('../task/searchTask.js');
+const init = require('../init.js');
+const convertFromBSON = require('../convertFromBSON.js');
 
-const setResponsible = (title, responsible) => {
-  if (findUser(responsible) === undefined || searchForTask(title) === undefined) {
-    console.log('Something is wrong. Check if the user or task really exists.');
+const setResponsible = async (titleTask, responsibleName) => {
+  const settingResponsibleInDb = async (DB) => {
+    const previousUserResponsible = await DB.collection('users').find({ tasks: titleTask }).toArray();
+    const convertedResult = await convertFromBSON(previousUserResponsible);
+    const previousResponsibleName = convertedResult[0].name;
+    await DB.collection('tasks').update({ title: titleTask }, { $set: { responsible: responsibleName } });
+    await DB.collection('users').update({ tasks: titleTask }, { $pull: { tasks: titleTask } });
+    await DB.collection('users').update({ name: responsibleName }, { $push: { tasks: titleTask } });
+    console.log(`Responsibility for the task: ${titleTask} changed from ${previousResponsibleName} to ${responsibleName}`);
+  };
+  const foundResponsible = await findUser(responsibleName);
+  const foundTask = await searchTask(titleTask);
+  if (foundResponsible !== null && foundTask !== null) {
+    await init(settingResponsibleInDb);
   } else {
-    const task = searchForTask(title);
-    const userTemp = task.responsible;
-    userBase.forEach((user) => {
-      if (user.name === task.responsible) {
-        user.tasks.forEach((tsk) => {
-          if (tsk === task) {
-            user.tasks.splice(tsk, 1);
-          }
-        });
-        task.responsible = responsible;
-      }
-    });
-    userBase.forEach((user1) => {
-      if (user1.name === task.responsible) {
-        user1.tasks.push(task);
-      }
-    });
-    console.log(`Responsibility for the task: ${title} changed from ${userTemp} to ${task.responsible}`);
+    console.log('Something is wrong. Check if the user or task really exists.');
   }
 };
 

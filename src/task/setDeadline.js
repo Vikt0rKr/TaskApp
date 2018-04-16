@@ -1,22 +1,22 @@
-const taskBase = require('./taskBase.js');
+const init = require('../init.js');
+const searchTask = require('./searchTask.js');
+const convertFromBSON = require('../convertFromBSON.js');
 
-const setDeadline = (title, newDeadline) => {
-  taskBase.forEach((task) => {
-    const taskToAssign = task;
-    if (task.title === title) {
-      const tempDeadline = task.deadline;
-      const splat = newDeadline.split('-').reverse().join('-');
-      const newDeadl = Date.parse(splat);
-      taskToAssign.deadline = newDeadl;
-      const dateFirst = new Date(tempDeadline).toISOString().substring(0, 10).split('-');
-      const first = dateFirst.reverse().join('-');
-      const dateSecond = new Date(taskToAssign.deadline).toISOString().substring(0, 10).split('-');
-      const second = dateSecond.reverse().join('-');
-      console.log(`Deadline for task: ${title} changed from ${first} to ${second}`);
-    } else {
-      console.log('There is no such task in the app');
-    }
-  });
+const setDeadline = async (titleTask, newDeadline) => {
+  const changeDeadline = async (DB) => {
+    const neededTask = await DB.collection('tasks').find({ title: titleTask }).toArray();
+    const convertedTask = await convertFromBSON(neededTask);
+    const taskDeadline = convertedTask[0].deadline;
+    const splitNewDeadline = newDeadline.split('-').reverse().join('-');
+    const newDeadl = new Date(splitNewDeadline).getTime();
+    const previousDeadline = new Date(taskDeadline).toISOString().substring(0, 10).split('-');
+    const firstDeadline = previousDeadline.reverse().join('-');
+    const modifyDeadline = await DB.collection('tasks').update({ title: titleTask }, { $set: { deadline: newDeadl } });
+    if (modifyDeadline) console.log(`Deadline for task: ${titleTask} changed from ${firstDeadline} to ${newDeadline}`);
+  };
+  const foundTask = await searchTask(titleTask);
+  if (foundTask) init(changeDeadline);
+  else console.log(`Have not found task named ${titleTask}`);
 };
 
 module.exports = setDeadline;

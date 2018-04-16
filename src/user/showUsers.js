@@ -1,19 +1,18 @@
-const userBase = require('./userBase.js');
+const init = require('../init.js');
+const convertFromBSON = require('../convertFromBSON.js');
 
-const showUsers = () => {
-  const newArr = [];
-  userBase.forEach((eachUser) => {
-    const AnotherUser = function (name, surname, registration, taskamount) {
-      this.name = name;
-      this.surname = surname;
-      this.registration = registration;
-      this.taskamount = taskamount;
-    };
-    const dati = (new Date(eachUser.createdAt)).toISOString().substring(0, 10).split('-');
-    const finalDati = dati.reverse().join('-');
-    newArr.push(new AnotherUser(eachUser.name, eachUser.surname, finalDati, eachUser.tasks.length));
-  });
-  console.log(newArr);
+const showUsers = async () => {
+  const showUserList = async (DB) => {
+    const findAllUsers = await DB.collection('users').find().toArray();
+    const allUsersConverted = await convertFromBSON(findAllUsers);
+    await allUsersConverted.forEach((user, index) => {
+      const userNumber = index + 1;
+      const convertRegDate = (new Date(user.createdAt)).toISOString().substring(0, 10).split('-');
+      const convertedCreatedAt = convertRegDate.reverse().join('-');
+      console.log(userNumber, ' - ', user.name, ' ', user.surname, ', created at: ', convertedCreatedAt, ', tasks: ', user.tasks.length);
+    });
+  };
+  await init(showUserList);
 };
 
 module.exports = showUsers;

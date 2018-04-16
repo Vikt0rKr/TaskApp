@@ -1,13 +1,22 @@
-const User = require('./user.js');
-const userBase = require('./userBase.js');
 const findUser = require('./findUser.js');
+const init = require('../init.js');
 
-const addUser = (name, surname) => {
-  if (findUser(name) === undefined) {
-    userBase.push(new User(name, surname));
-    console.log(`Added user ${name} ${surname}`);
+const addUser = async (nameUser, surnameUser) => {
+  const addUserInDb = async (DB) => {
+    const creationDate = Date.now();
+    const insertInDb = await DB.collection('users').insert({
+      name: nameUser,
+      surname: surnameUser,
+      createdAt: creationDate,
+      tasks: [],
+    });
+    if (insertInDb) console.log(`Created user ${nameUser} ${surnameUser}`);
+  };
+  const foundUser = await findUser(nameUser);
+  if (foundUser === null) {
+    await init(addUserInDb);
   } else {
-    console.log(`User ${name} ${surname} already exists.`);
+    console.log(`User ${nameUser} already exists`);
   }
 };
 
